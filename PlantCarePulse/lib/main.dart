@@ -5,6 +5,7 @@ import 'screens/stateless_stateful_demo.dart';
 import 'screens/home_screen.dart';
 import 'screens/second_screen.dart';
 import 'screens/third_screen.dart';
+import 'screens/scrollable_views.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         '/navigation-home': (context) => const HomeScreen(),
         '/second': (context) => const SecondScreen(),
         '/third': (context) => const ThirdScreen(),
+        '/scrollable-views': (context) => const ScrollableViews(),
       },
     );
   }
@@ -112,6 +114,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 foregroundColor: Colors.white,
               ),
               child: const Text('Multi-Screen Navigation Demo'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/scrollable-views');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal[600],
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Scrollable Views Demo'),
             ),
           ],
         ),
