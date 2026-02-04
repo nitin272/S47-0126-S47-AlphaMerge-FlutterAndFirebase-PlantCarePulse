@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'screens/responsive_home.dart';
 import 'screens/widget_tree_demo.dart';
+import 'screens/stateless_stateful_demo.dart';
+import 'screens/home_screen.dart';
+import 'screens/second_screen.dart';
+import 'screens/third_screen.dart';
+import 'screens/scrollable_views.dart';
+import 'screens/user_input_form.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,6 +28,12 @@ class MyApp extends StatelessWidget {
         '/': (context) => const MyHomePage(title: 'Hot Reload & Debug Demo'),
         '/responsive': (context) => const ResponsiveHome(),
         '/widget-tree': (context) => const WidgetTreeDemo(),
+        '/stateless-stateful': (context) => const StatelessStatefulDemo(),
+        '/navigation-home': (context) => const HomeScreen(),
+        '/second': (context) => const SecondScreen(),
+        '/third': (context) => const ThirdScreen(),
+        '/scrollable-views': (context) => const ScrollableViews(),
+        '/user-input-form': (context) => const UserInputForm(),
       },
     );
   }
@@ -82,6 +94,50 @@ class _MyHomePageState extends State<MyHomePage> {
                 foregroundColor: Colors.white,
               ),
               child: const Text('Widget Tree Demo'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/stateless-stateful');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue[600],
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Stateless vs Stateful Demo'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/navigation-home');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.purple[600],
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Multi-Screen Navigation Demo'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/scrollable-views');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal[600],
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Scrollable Views Demo'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/user-input-form');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange[600],
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('User Input Form Demo'),
             ),
           ],
         ),
