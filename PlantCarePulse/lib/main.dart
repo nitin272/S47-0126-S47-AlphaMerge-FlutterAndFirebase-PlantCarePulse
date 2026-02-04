@@ -6,6 +6,7 @@ import 'screens/home_screen.dart';
 import 'screens/second_screen.dart';
 import 'screens/third_screen.dart';
 import 'screens/scrollable_views.dart';
+import 'screens/user_input_form.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         '/second': (context) => const SecondScreen(),
         '/third': (context) => const ThirdScreen(),
         '/scrollable-views': (context) => const ScrollableViews(),
+        '/user-input-form': (context) => const UserInputForm(),
       },
     );
   }
@@ -125,6 +127,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 foregroundColor: Colors.white,
               ),
               child: const Text('Scrollable Views Demo'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/user-input-form');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange[600],
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('User Input Form Demo'),
             ),
           ],
         ),
