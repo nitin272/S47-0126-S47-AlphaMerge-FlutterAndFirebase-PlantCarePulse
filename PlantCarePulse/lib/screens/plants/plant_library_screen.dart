@@ -150,11 +150,22 @@ class _PlantLibraryScreenState extends State<PlantLibraryScreen>
   }
 
   Widget _buildAnimatedGrid() {
+    // Use MediaQuery instead of LayoutBuilder for responsive grid
+    final screenWidth = MediaQuery.of(context).size.width;
+    int crossAxisCount;
+    if (screenWidth < 600) {
+      crossAxisCount = 2; // Mobile
+    } else if (screenWidth < 900) {
+      crossAxisCount = 3; // Tablet
+    } else {
+      crossAxisCount = 4; // Desktop
+    }
+    
     return SliverPadding(
       padding: const EdgeInsets.all(16),
       sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
           childAspectRatio: 0.75,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,

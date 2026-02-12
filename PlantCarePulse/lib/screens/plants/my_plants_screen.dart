@@ -68,6 +68,9 @@ class _MyPlantsScreenState extends State<MyPlantsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // MediaQuery for responsive design
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600;
     final plantsNeedingWater = _myPlants.where((p) => p.needsWatering).toList();
 
     return Scaffold(
@@ -86,22 +89,27 @@ class _MyPlantsScreenState extends State<MyPlantsScreen> {
           ? _buildEmptyState()
           : Column(
               children: [
-                // Alert banner if plants need water
+                // Alert banner if plants need water - Responsive
                 if (plantsNeedingWater.isNotEmpty)
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(isTablet ? 20 : 16),
                     color: Colors.orange[100],
                     child: Row(
                       children: [
-                        Icon(Icons.warning_amber, color: Colors.orange[800]),
-                        const SizedBox(width: 12),
+                        Icon(
+                          Icons.warning_amber,
+                          color: Colors.orange[800],
+                          size: isTablet ? 28 : 24,
+                        ),
+                        SizedBox(width: isTablet ? 16 : 12),
                         Expanded(
                           child: Text(
                             '${plantsNeedingWater.length} plant(s) need watering!',
                             style: TextStyle(
                               color: Colors.orange[900],
                               fontWeight: FontWeight.bold,
+                              fontSize: isTablet ? 18 : 14,
                             ),
                           ),
                         ),
@@ -109,17 +117,54 @@ class _MyPlantsScreenState extends State<MyPlantsScreen> {
                     ),
                   ),
 
-                // Plant list
+                // Plant list/grid - Responsive with LayoutBuilder
                 Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _myPlants.length,
-                    itemBuilder: (context, index) {
-                      final userPlant = _myPlants[index];
-                      return _MyPlantCard(
-                        userPlant: userPlant,
-                        onWater: () => _waterPlant(userPlant),
-                      );
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (isTablet) {
+                        // Tablet: Grid view
+                        return GridView.builder(
+                          padding: EdgeInsets.all(screenWidth * 0.04),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: constraints.maxWidth < 900 ? 2 : 3,
+                            childAspectRatio: 1.2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
+                          itemCount: _myPlants.length,
+                          itemBuilder: (context, index) {
+                            final userPlant = _myPlants[index];
+                            return _MyPlantCard(
+                              userPlant: userPlant,
+                              onWater: () => _waterPlant(userPlant),
+                              isTablet: isTablet,
+                            );
+                          },
+                        );
+                      } else {
+                        // Mobile: List view with fade animation
+                        return ListView.builder(
+                          padding: EdgeInsets.all(screenWidth * 0.04),
+                          itemCount: _myPlants.length,
+                          itemBuilder: (context, index) {
+                            final userPlant = _myPlants[index];
+                            return AnimatedOpacity(
+                              opacity: 1.0,
+                              duration: Duration(milliseconds: 300 + (index * 100)),
+                              child: AnimatedSlide(
+                                offset: Offset.zero,
+                                duration: Duration(milliseconds: 400 + (index * 100)),
+                                curve: Curves.easeOut,
+                                child: _MyPlantCard(
+                                  userPlant: userPlant,
+                                  onWater: () => _waterPlant(userPlant),
+                                  isTablet: isTablet,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      }
                     },
                   ),
                 ),
@@ -181,14 +226,16 @@ class _MyPlantsScreenState extends State<MyPlantsScreen> {
   }
 }
 
-// My plant card widget - demonstrates interactive stateless widget
+// My plant card widget - demonstrates interactive stateless widget with responsive design
 class _MyPlantCard extends StatelessWidget {
   final UserPlant userPlant;
   final VoidCallback onWater;
+  final bool isTablet;
 
   const _MyPlantCard({
     required this.userPlant,
     required this.onWater,
+    this.isTablet = false,
   });
 
   @override
@@ -197,18 +244,18 @@ class _MyPlantCard extends StatelessWidget {
 
     return Card(
       elevation: 2,
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: isTablet ? 0 : 16),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isTablet ? 20 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                // Plant emoji
+                // Plant emoji - Responsive size
                 Container(
-                  width: 60,
-                  height: 60,
+                  width: isTablet ? 80 : 60,
+                  height: isTablet ? 80 : 60,
                   decoration: BoxDecoration(
                     color: Colors.green[50],
                     borderRadius: BorderRadius.circular(12),
@@ -216,28 +263,28 @@ class _MyPlantCard extends StatelessWidget {
                   child: Center(
                     child: Text(
                       userPlant.plant.imageEmoji,
-                      style: const TextStyle(fontSize: 32),
+                      style: TextStyle(fontSize: isTablet ? 40 : 32),
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: isTablet ? 20 : 16),
 
-                // Plant info
+                // Plant info - Responsive typography
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         userPlant.nickname,
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style: TextStyle(
+                          fontSize: isTablet ? 22 : 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
                         userPlant.plant.name,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: isTablet ? 16 : 14,
                           color: Colors.grey[600],
                         ),
                       ),
@@ -263,17 +310,23 @@ class _MyPlantCard extends StatelessWidget {
                   ),
                 ),
 
-                // Water button
-                IconButton(
-                  onPressed: onWater,
-                  icon: Icon(
-                    Icons.water_drop,
-                    color: needsWater ? Colors.orange : Colors.blue,
+                // Water button with animation
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  decoration: BoxDecoration(
+                    color: needsWater ? Colors.orange[100] : Colors.blue[50],
+                    shape: BoxShape.circle,
                   ),
-                  style: IconButton.styleFrom(
-                    backgroundColor: needsWater
-                        ? Colors.orange[100]
-                        : Colors.blue[50],
+                  child: IconButton(
+                    onPressed: onWater,
+                    icon: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: Icon(
+                        Icons.water_drop,
+                        key: ValueKey(needsWater),
+                        color: needsWater ? Colors.orange : Colors.blue,
+                      ),
+                    ),
                   ),
                 ),
               ],

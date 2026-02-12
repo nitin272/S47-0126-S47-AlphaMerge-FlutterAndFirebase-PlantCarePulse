@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/firebase_auth_service.dart';
 
 // Profile screen - demonstrates settings and user info from Firebase
@@ -44,6 +43,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return _userData?['plantCount'] ?? 0;
   }
 
+  // Check if profile image exists in assets
+  bool _hasProfileImage() {
+    // In production, check if file exists or user has uploaded image
+    return false; // Set to true when you add profile_avatar.png to assets/images/
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -68,17 +73,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
+                  // Profile avatar - using Image.asset if available, fallback to CircleAvatar
                   CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.green[100],
-                    child: Text(
-                      userName[0].toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green[700],
-                      ),
-                    ),
+                    backgroundImage: _hasProfileImage() 
+                        ? const AssetImage('assets/images/profile_avatar.png')
+                        : null,
+                    child: !_hasProfileImage()
+                        ? Text(
+                            userName[0].toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green[700],
+                            ),
+                          )
+                        : null,
                   ),
                   const SizedBox(height: 16),
                   Text(
