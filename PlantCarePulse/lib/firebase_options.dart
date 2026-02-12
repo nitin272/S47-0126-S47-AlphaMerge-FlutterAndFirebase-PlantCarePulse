@@ -42,12 +42,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBZOlu4Dei52uAj3LDDwpmByklYI7p4hI4',
-    appId: '1:422724030453:web:e682fe038c75014cde1abc',
+    appId: '1:422724030453:web:214bf72837f8f3d3de1abc',
     messagingSenderId: '422724030453',
     projectId: 'plantcareplus-b64a2',
     authDomain: 'plantcareplus-b64a2.firebaseapp.com',
     storageBucket: 'plantcareplus-b64a2.firebasestorage.app',
-    measurementId: 'G-F9FP0647NR',
+    measurementId: 'G-8NM86B3T5R',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -77,12 +77,12 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyBZOlu4Dei52uAj3LDDwpmByklYI7p4hI4',
-    appId: '1:422724030453:web:214bf72837f8f3d3de1abc',
+    apiKey: 'AIzaSyCoRAZwaFVPpYEhUrLgqJySdUzyjiMakGY',
+    appId: '1:422724030453:web:37e7b213de7964f7de1abc',
     messagingSenderId: '422724030453',
     projectId: 'plantcareplus-b64a2',
     authDomain: 'plantcareplus-b64a2.firebaseapp.com',
     storageBucket: 'plantcareplus-b64a2.firebasestorage.app',
-    measurementId: 'G-8NM86B3T5R',
+    measurementId: 'G-DQ46NWCXNM',
   );
 }

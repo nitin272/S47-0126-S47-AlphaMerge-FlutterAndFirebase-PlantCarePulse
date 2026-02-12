@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../home/main_home_screen.dart';
 import 'login_screen.dart';
-import '../../main.dart';
 
+/// Auth wrapper - checks if user is logged in
+/// Shows login screen if not authenticated, home screen if authenticated
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -11,6 +13,7 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
+        // Show loading while checking auth state
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(
@@ -18,14 +21,14 @@ class AuthWrapper extends StatelessWidget {
             ),
           );
         }
-        
+
+        // Show home if user is logged in
         if (snapshot.hasData) {
-          // User is logged in
-          return const MyHomePage(title: 'Plant Care Pulse');
-        } else {
-          // User is not logged in
-          return const LoginScreen();
+          return const MainHomeScreen();
         }
+
+        // Show login if user is not logged in
+        return const LoginScreen();
       },
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'signup_screen.dart';
+import '../../services/firebase_auth_service.dart';
 
+/// Login screen - demonstrates form handling and authentication flow
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -13,6 +13,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authService = FirebaseAuthService();
   bool _isLoading = false;
   bool _obscurePassword = true;
 
@@ -23,39 +24,34 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _signIn() async {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _handleLogin() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
 
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
-      // Navigation will be handled by AuthWrapper
-    } on FirebaseAuthException catch (e) {
-      String message = 'An error occurred';
-      if (e.code == 'user-not-found') {
-        message = 'No user found for that email.';
-      } else if (e.code == 'wrong-password') {
-        message = 'Wrong password provided.';
-      } else if (e.code == 'invalid-email') {
-        message = 'Invalid email address.';
-      }
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
+      try {
+        await _authService.signIn(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+
+        if (mounted) {
+          // Navigation handled by AuthWrapper
+          Navigator.pushReplacementNamed(context, '/home');
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.toString()),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
@@ -63,62 +59,56 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green[50],
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(24),
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Logo/Icon
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.green[100],
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.local_florist,
-                      size: 60,
-                      color: Colors.green[700],
-                    ),
+                  Icon(
+                    Icons.eco,
+                    size: 80,
+                    color: Colors.green[700],
                   ),
-                  const SizedBox(height: 32),
-                  
-                  // Title
+                  const SizedBox(height: 16),
+
+                  // App name
                   Text(
                     'Plant Care Pulse',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 28,
+                      fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green[800],
+                      color: Colors.green[700],
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Welcome back!',
+                    'Welcome back! 🌱',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.green[600],
+                      color: Colors.grey[600],
                     ),
                   ),
                   const SizedBox(height: 48),
-                  
-                  // Email Field
+
+                  // Email field
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       labelText: 'Email',
-                      prefixIcon: const Icon(Icons.email),
+                      hintText: 'Enter your email',
+                      prefixIcon: const Icon(Icons.email_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      filled: true,
-                      fillColor: Colors.white,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -131,17 +121,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  
-                  // Password Field
+
+                  // Password field
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      prefixIcon: const Icon(Icons.lock),
+                      hintText: 'Enter your password',
+                      prefixIcon: const Icon(Icons.lock_outlined),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                          _obscurePassword
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
                         ),
                         onPressed: () {
                           setState(() {
@@ -152,8 +145,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      filled: true,
-                      fillColor: Colors.white,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -165,32 +156,58 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 8),
+
+                  // Forgot password
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Password reset coming soon!'),
+                          ),
+                        );
+                      },
+                      child: const Text('Forgot Password?'),
+                    ),
+                  ),
                   const SizedBox(height: 24),
-                  
-                  // Login Button
+
+                  // Login button
                   SizedBox(
-                    width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : _signIn,
+                      onPressed: _isLoading ? null : _handleLogin,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green[600],
+                        backgroundColor: Colors.green[700],
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       child: _isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
                           : const Text(
-                              'Sign In',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              'Login',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  
-                  // Sign Up Link
+                  const SizedBox(height: 16),
+
+                  // Sign up link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -198,22 +215,26 @@ class _LoginScreenState extends State<LoginScreen> {
                         "Don't have an account? ",
                         style: TextStyle(color: Colors.grey[600]),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const SignupScreen()),
-                          );
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/signup');
                         },
-                        child: Text(
-                          'Sign Up',
-                          style: TextStyle(
-                            color: Colors.green[600],
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: const Text('Sign Up'),
                       ),
                     ],
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Skip login (for demo purposes)
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/home');
+                    },
+                    child: Text(
+                      'Skip for now',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
                   ),
                 ],
               ),
